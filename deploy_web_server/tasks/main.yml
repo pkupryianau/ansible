@@ -1,0 +1,73 @@
+---
+# tasks file for deploy_web_server
+- name: Check Linux OS
+         debug: var=ansible_os_family
+         
+       - name: Install Apache2
+         apt: name=apache2 state=latest
+       
+             
+       - name: Create document root
+         file:
+           path: /var/www/
+           state: directory
+           owner: www-data 
+           group: www-data
+           mode: '0755'
+      
+       - name: copy homepage
+         copy: src={{source_file}} dest={{destination_file}} mode=0555
+
+       - name: Start WebService
+         service: name=apache2 state=started enabled=yes
+       
+       - name: Install MariaDB
+         apt: name=mariadb-server state=latest
+       
+       - name: Install MariaDB client
+         apt: name=mariadb-client state=latest
+       
+       - name: Install PHP
+         apt: name="{{ item }}" state=latest
+         loop:
+             - python3-pymysql 
+             - php 
+             - php-mysql 
+             - libapache2-mod-php
+             - python3-pip
+             - python3-mysqldb
+
+       - name: Create root db user
+         mysql_user: 
+                name: root 
+                password: root
+       
+       - name: Create new db MariaDB
+         mysql_db: 
+                name: demo 
+                state: present
+                login_user: root
+                login_password: root
+       
+       - name: Create user MariaDB
+         mysql_user:
+                name: user01
+                password: 1234QAZcde
+                priv: '*.*:ALL,GRANT' 
+                state: present
+                hosts: localhost
+                login_user: root
+                login_password: root
+       
+       - name: 
+          unarchive:
+          src: https://wordpress.org/latest.tar.gz
+          dest: /var/www/site/
+          remote_src: yes
+       
+       - name: right www-data
+         path: /var/www/site/
+         state: directory
+         owner: www-data
+         group: www-data
+

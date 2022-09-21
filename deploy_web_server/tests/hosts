@@ -1,0 +1,19 @@
+[linux]
+ubuntusrv2 ansible_host=192.168.100.10
+
+[linux:vars]
+ansible_user=prkpo
+ansible_ssh_private_key_file=~/.ssh/id_rsa.pub
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+
+[windows]
+win2019se ansible_host=192.168.100.9
+
+[windows:vars]
+ansible_user=Administrator
+ansible_password=1234QAZcde
+ansible_port=5986
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore

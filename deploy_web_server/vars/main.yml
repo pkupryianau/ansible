@@ -1,0 +1,4 @@
+---
+# vars file for deploy_web_server
+ source_file: /etc/ansible/index.html
+ destination_file: /var/www/site/html
