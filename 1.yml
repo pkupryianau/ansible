@@ -1,0 +1,7 @@
+---
+- name: Install LAMP_WP
+  hosts: linux
+  become: yes
+
+  roles:
+   role: deploy_web_server
