@@ -1,0 +1,58 @@
+---
+# tasks file for deploy_web_server
+ - name: Check Linux OS
+         debug: var=ansible_os_family
+
+       - name: Install Apache2
+         apt: name=apache2 state=latest
+       - name: Start WebService
+         service: name=apache2 state=started enabled=yes
+
+       - name: Install PHP
+         apt: name="{{ item }}" state=latest
+         loop:
+             - python3-pymysql
+             - php
+             - php-mysql
+             - libapache2-mod-php
+             - python3-pip
+             - python3-mysqldb
+
+       - name: Create WP DB
+         mysql_db:
+          config_file: "/etc/mysql/my.cnf"
+          name: db1
+          state: present
+          login_user: root
+          login_password: root
+
+       - name: Create DB user
+         mysql_user:
+          config_file: "/etc/mysql/my.cnf"
+          name: admin
+          password: admin
+          priv: db1.*:ALL
+          state: present
+          login_user: root
+          login_password: root 
+
+       - name: download WP
+         get_url: url=https://wordpress.org/latest.tar.gz force=on dest=/tmp/wordpress.tar.gz
+
+       - name: Extract archive WP
+         unarchive: src=/tmp/wordpress.tar.gz dest=/tmp copy=no
+
+       - name: Move  to work dir WP
+         shell: cp -r -n /tmp/wordpress/* /var/www/
+
+       - name: remove install files
+         file: path=/tmp/wordpress.tar.gz state=absent
+
+       - name: change owner install dir
+         file: path=/var/www/wordpress/ owner=www-data group=www-data state=directory recurse=yes setype=httpd_sys_content_t
+
+       - name: change owner dir
+         file: path=/var/www/wordpress/wp-content/ owner=www-data group=www-data mode=0755 state=directory recurse=yes
+  
+       - name: config files
+         copy: src={{ source_folder }}  dest={{ dest_folder }} mode=0555

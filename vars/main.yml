@@ -2,3 +2,6 @@
 # vars file for deploy_web_server
  source_file: /etc/ansible/index.html
  destination_file: /var/www/site/html
+
+ source_folder: /etc/ansible/playbook/wp-config.php
+ dest_folder: /var/www/wordpress/
